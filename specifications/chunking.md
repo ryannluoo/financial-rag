@@ -77,7 +77,7 @@ The default input directory is `data/processed/rendered_reports`. A directory ru
 The default parent directory is `data/processed/chunks`. Each run writes into a subdirectory named from the active chunk size and overlap:
 
 ```text
-data/processed/chunks/size-<chunk_size>-overlap-<chunk_overlap>/
+data/processed/chunks/c<chunk_size>_o<chunk_overlap>/
 ```
 
 `--output-dir` selects that parent. The size and overlap in the directory name always come from the configuration used for the run. Each selected `<document_id>.json` produces `<document_id>.jsonl` in that subdirectory, with one chunk object per physical line. Newlines inside chunk text are JSON-escaped. Files use UTF-8 without a BOM, preserved Unicode, LF line endings, and a final newline for each record. Empty reports produce zero-byte files.
@@ -106,12 +106,12 @@ Override paths and splitting settings:
 uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking --input-dir data/processed/rendered_reports --output-dir data/processed/chunks --chunk-size 512 --chunk-overlap 64 --tokenizer-model Qwen/Qwen3-Embedding-0.6B
 ```
 
-That override writes `data/processed/chunks/size-512-overlap-64/`. Positional paths replace directory selection and are processed in the order supplied. The CLI accepts `--input-dir`, `--output-dir`, `--chunk-size`, `--chunk-overlap`, and `--tokenizer-model`. It logs the chunk count for each report and prints total report and chunk counts on success.
+That override writes `data/processed/chunks/c512_o64/`. Positional paths replace directory selection and are processed in the order supplied. The CLI accepts `--input-dir`, `--output-dir`, `--chunk-size`, `--chunk-overlap`, and `--tokenizer-model`. It logs the chunk count for each report and prints total report and chunk counts on success.
 
 A missing input directory, no selected reports, invalid configuration, unreadable or malformed input, filename/ID mismatch, tokenizer loading failure, source lookup failure, or output write failure causes a nonzero exit. Previously written outputs remain.
 
 ## Baseline verification
 
-The default run over the current 100 rendered reports wrote `data/processed/chunks/size-384-overlap-64/`: 100 JSONL files containing 53,330 chunks. Checks confirmed one-to-one filenames, unique chunk IDs, exact source slices, complete coverage of non-whitespace page text, and a maximum observed chunk length of 384 tokens. These are observations for this corpus run, not corpus-level validation implemented in the command.
+The default run over the current 100 rendered reports wrote `data/processed/chunks/c384_o64/`: 100 JSONL files containing 53,330 chunks. Checks confirmed one-to-one filenames, unique chunk IDs, exact source slices, complete coverage of non-whitespace page text, and a maximum observed chunk length of 384 tokens. These are observations for this corpus run, not corpus-level validation implemented in the command.
 
 `tests/test_chunker.py` covers page boundaries, token counts, Unicode offsets, repeated content, zero overlap, empty pages, trailing overlap and table delimiters, JSONL serialization, and missing input handling. Tests use a local in-memory tokenizer and require no model downloads.

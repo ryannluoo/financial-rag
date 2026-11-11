@@ -1,7 +1,7 @@
 [project]
 name = "financial-rag"
 version = "0.1.0"
-description = "Advanced financial RAG system"
+description = "RAG over 100 annual reports (Enterprise RAG Challenge Round 2)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,6 +9,7 @@ dependencies = [
     "langchain-text-splitters==1.1.3",
     "numpy==2.5.3",
     "pydantic==2.13.5",
+    "qdrant-client==1.20.0",
     "sentence-transformers==6.2.0",
     "tabulate==0.10.0",
     "torch==2.14.0",

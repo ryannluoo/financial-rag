@@ -6,7 +6,7 @@ The embedding stage converts the text in report chunk JSONL files into dense vec
 
 ## Input
 
-The default input directory is `data/processed/chunks/size-384-overlap-64/`. The command processes regular `*.jsonl` files directly inside the selected directory in lexicographic path order. Each file represents one report and follows the [chunking specification](chunking.md). The command uses three fields from each record.
+The default input directory is `data/processed/chunks/c384_o64/`. The command processes regular `*.jsonl` files directly inside the selected directory in lexicographic path order. Each file represents one report and follows the [chunking specification](chunking.md). The command uses three fields from each record.
 
 | Field | Requirement |
 | --- | --- |
@@ -24,7 +24,7 @@ uv run --cache-dir .cache/uv --locked python -m financial_rag.embedding --device
 
 | Option | Default | Behavior |
 | --- | --- | --- |
-| `--input-dir` | `data/processed/chunks/size-384-overlap-64` | Select a directory of report JSONL files. |
+| `--input-dir` | `data/processed/chunks/c384_o64` | Select a directory of report JSONL files. |
 | `--output-dir` | `data/processed/embeddings` | Select the parent directory for embedding outputs. |
 | `--embedding-model` | `Qwen/Qwen3-Embedding-0.6B` | Also accepts `IEITYuan/Yuan-embedding-2.0-en`. The corpus baseline uses Qwen. |
 | `--batch-size` | `32` | Positive integer for batches within each report. |
@@ -38,7 +38,7 @@ The embedder resolves the Hugging Face commit from the model configuration, then
 
 ## Vector files
 
-The default output directory is `data/processed/embeddings/qwen3-embedding-0.6b/size-384-overlap-64/`. The command appends the lowercased final component of the model ID and the resolved input directory's basename to the output parent.
+The default output directory is `data/processed/embeddings/qwen3_emb_06b/c384_o64/`. The command appends the shared model alias and the resolved input directory's basename to the output parent. The model aliases are `qwen3_emb_06b` for `Qwen/Qwen3-Embedding-0.6B` and `yuan_emb_20_en` for `IEITYuan/Yuan-embedding-2.0-en`; embedding directories and collection names use the same mapping.
 
 Each `<document_id>.npy` contains one float32 matrix of shape `(N, D)`, with `N` equal to the number of source records. Row `i` embeds record `i` of the matching JSONL file, using zero-based indices. Empty reports produce shape `(0, D)`. NumPy files are written with pickling disabled. Generated artifacts are Git-ignored under the default output parent.
 

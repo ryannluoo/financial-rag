@@ -34,7 +34,7 @@ class ChunkingConfig(BaseModel):
 
     def output_directory(self, base_dir: Path) -> Path:
         """Return the configuration-specific directory under ``base_dir``."""
-        return Path(base_dir) / f"size-{self.chunk_size}-overlap-{self.chunk_overlap}"
+        return Path(base_dir) / f"c{self.chunk_size}_o{self.chunk_overlap}"
 
 
 class RecursiveTokenChunker:

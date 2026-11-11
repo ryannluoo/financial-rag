@@ -9,11 +9,12 @@ from time import perf_counter
 
 import numpy as np
 
+from financial_rag.embedding import MODEL_NAMES
 from financial_rag.embedding.embedder import Embedder, EmbeddingConfig, EmbeddingModel
 from financial_rag.embedding.manifest import write_manifest
 
 
-DEFAULT_INPUT_DIR = Path("data/processed/chunks/size-384-overlap-64")
+DEFAULT_INPUT_DIR = Path("data/processed/chunks/c384_o64")
 DEFAULT_OUTPUT_DIR = Path("data/processed/embeddings")
 
 
@@ -86,7 +87,7 @@ def main() -> int:
         paths = sorted(path for path in input_dir.glob("*.jsonl") if path.is_file())
         if not paths:
             raise ValueError(f"No chunk JSONL files found in {input_dir}")
-        model_name = config.embedding_model.value.rsplit("/", 1)[-1].lower()
+        model_name = MODEL_NAMES[config.embedding_model.value]
         output_dir = args.output_dir / model_name / input_dir.name
         logging.info("Loading %s to embed %d reports", config.embedding_model, len(paths))
         embedder = Embedder(config)
