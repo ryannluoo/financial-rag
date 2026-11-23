@@ -1,15 +1,83 @@
 import hashlib
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 from qdrant_client import QdrantClient, models
 
 from financial_rag.indexing import __main__ as cli
 from financial_rag.indexing.indexer import IndexingConfig, QdrantIndexer
+
+
+def test_indexing_config_validation():
+    config = IndexingConfig(collection_name="test", vector_size=4)
+    assert config.batch_size == 256
+    with pytest.raises(ValidationError):
+        config.batch_size = 128
+    with pytest.raises(ValidationError):
+        IndexingConfig(collection_name="", vector_size=4)
+    with pytest.raises(ValidationError):
+        IndexingConfig(collection_name="test", vector_size=0)
+    with pytest.raises(ValidationError):
+        IndexingConfig(collection_name="test", vector_size=4, batch_size=0)
+
+
+def test_create_collection_configures_dense_vector_and_payload_indexes():
+    client = Mock(spec=QdrantClient)
+    indexer = QdrantIndexer(IndexingConfig(collection_name="col_v1", vector_size=1024), client)
+
+    indexer.create_collection()
+
+    client.create_collection.assert_called_once_with(
+        collection_name="col_v1",
+        vectors_config={
+            "dense": models.VectorParams(size=1024, distance=models.Distance.COSINE),
+        },
+    )
+    assert client.create_payload_index.call_count == 2
+    doc_index, text_index = client.create_payload_index.call_args_list
+    assert doc_index.kwargs == {
+        "collection_name": "col_v1",
+        "field_name": "document_id",
+        "field_schema": models.PayloadSchemaType.KEYWORD,
+        "wait": True,
+    }
+    assert text_index.kwargs["collection_name"] == "col_v1"
+    assert text_index.kwargs["field_name"] == "text"
+    assert text_index.kwargs["wait"] is True
+    assert text_index.kwargs["field_schema"] == models.TextIndexParams(
+        type=models.TextIndexType.TEXT,
+        tokenizer=models.TokenizerType.WORD,
+        lowercase=True,
+        scoring=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "vectors,chunk_count,match",
+    [
+        (np.ones((2, 2), dtype=np.float32), 1, "shape"),
+        (np.ones((1, 2), dtype=np.float64), 1, "float32"),
+        (np.array([[np.nan, 0.0]], dtype=np.float32), 1, "non-finite"),
+        (np.array([[np.inf, 0.0]], dtype=np.float32), 1, "non-finite"),
+        (np.zeros((1, 2), dtype=np.float32), 1, "zero-length"),
+    ],
+)
+def test_validate_vectors_rejects_invalid_arrays(vectors, chunk_count, match):
+    indexer = QdrantIndexer(IndexingConfig(collection_name="test", vector_size=2), Mock(spec=QdrantClient))
+    with pytest.raises(ValueError, match=match):
+        indexer.validate_vectors(vectors, chunk_count)
+
+
+def test_upload_chunks_skips_empty_input():
+    client = Mock(spec=QdrantClient)
+    indexer = QdrantIndexer(IndexingConfig(collection_name="test", vector_size=2), client)
+    indexer.upload_chunks([], np.empty((0, 2), dtype=np.float32))
+    client.upload_points.assert_not_called()
 
 
 @pytest.fixture
@@ -57,7 +125,11 @@ def test_completed_run_publishes_verified_manifest(run_input, model_id, prefix):
     assert result["point_count"] == result["report_count"] == 1
     assert result["model_id"] == model_id
     assert result["embedding_manifest"]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
-    assert result["artifacts"][0]["vector_sha256"] == hashlib.sha256((path.parent / "report.npy").read_bytes()).hexdigest()
+    artifact = result["artifacts"][0]
+    assert list(artifact) == [
+        "source_filename", "source_sha256", "vector_filename", "vector_sha256", "chunk_count",
+    ]
+    assert artifact["vector_sha256"] == hashlib.sha256((path.parent / "report.npy").read_bytes()).hexdigest()
     indexes = client.create_payload_index.call_args_list
     assert indexes[0].kwargs["field_schema"] == models.PayloadSchemaType.KEYWORD
     assert indexes[1].kwargs["field_schema"].scoring is True

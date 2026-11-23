@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
 import html
 import json
 import logging
-from pathlib import Path
 import re
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from docling.backend.docling_parse_backend import DoclingParseDocumentBackend
@@ -23,7 +23,6 @@ from docling.datamodel.pipeline_options import (
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
 from tabulate import tabulate
-
 
 LOGGER = logging.getLogger(__name__)
 DEFAULT_INPUT_DIR = Path("data/raw/reports")

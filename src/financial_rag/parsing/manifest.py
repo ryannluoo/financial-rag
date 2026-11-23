@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
 import hashlib
 import json
-from pathlib import Path
 import tomllib
+from collections.abc import Mapping, Sequence
+from pathlib import Path
 from typing import Any
-
 
 MANIFEST_FILENAME = "manifest.json"
 PARSER_CLASS_PATH = "financial_rag.parsing.parser.FinancialReportParser"

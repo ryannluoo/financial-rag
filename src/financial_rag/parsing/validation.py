@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import hashlib
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
 from financial_rag.parsing.manifest import MANIFEST_FILENAME
-
 
 DEFAULT_DATASET_MANIFEST = Path("data/raw/dataset_manifest.json")
 

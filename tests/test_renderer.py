@@ -9,7 +9,6 @@ from financial_rag.rendering.renderer import (
     render_report,
 )
 
-
 _TABLE = "| Metric | 2022 | 2021 |\n|---|---|---|\n| Revenue | 120.5 | 98.1 |"
 
 

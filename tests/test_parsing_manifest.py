@@ -1,12 +1,11 @@
 import hashlib
 import json
-from pathlib import Path
 import tomllib
+from pathlib import Path
 
 import pytest
 
 from financial_rag.parsing.manifest import MANIFEST_FILENAME, write_manifest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHED_MANIFEST = ROOT / "data" / "processed" / "parsed_reports" / "manifest.json"

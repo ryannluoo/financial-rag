@@ -11,11 +11,19 @@ import numpy as np
 
 from financial_rag.embedding import MODEL_NAMES
 from financial_rag.embedding.embedder import Embedder, EmbeddingConfig, EmbeddingModel
-from financial_rag.embedding.manifest import write_manifest
-
 
 DEFAULT_INPUT_DIR = Path("data/processed/chunks/c384_o64")
 DEFAULT_OUTPUT_DIR = Path("data/processed/embeddings")
+
+
+def _write_manifest(destination: Path, payload: dict) -> None:
+    temporary = destination.with_suffix(".json.tmp")
+    temporary.write_text(
+        json.dumps(payload, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    temporary.replace(destination)
 
 
 def _read_chunks(path: Path, seen_ids: set[str]) -> tuple[list[str], str]:
@@ -128,7 +136,7 @@ def main() -> int:
             if not vector_path.is_file():
                 raise ValueError(f"Missing embedding output: {vector_path}")
 
-        write_manifest(manifest_path, {
+        _write_manifest(manifest_path, {
             "model_id": config.embedding_model.value,
             "model_revision": embedder.revision,
             "model_dtype": config.model_dtype,

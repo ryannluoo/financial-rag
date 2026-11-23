@@ -7,7 +7,6 @@ from pathlib import Path
 
 from financial_rag.chunking.chunker import ChunkingConfig, RecursiveTokenChunker
 
-
 DEFAULT_INPUT_DIR = Path("data/processed/rendered_reports")
 DEFAULT_OUTPUT_DIR = Path("data/processed/chunks")
 

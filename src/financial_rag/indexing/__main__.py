@@ -2,11 +2,11 @@
 
 import argparse
 import hashlib
-from io import BytesIO
 import json
 import logging
-from pathlib import Path
 import re
+from io import BytesIO
+from pathlib import Path
 from time import perf_counter
 
 import numpy as np
@@ -15,13 +15,20 @@ from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedR
 
 from financial_rag.embedding import MODEL_NAMES
 from financial_rag.indexing.indexer import IndexingConfig, QdrantIndexer
-from financial_rag.indexing.manifest import write_manifest
-
 
 DEFAULT_INPUT_DIR = Path(
     "data/processed/embeddings/qwen3_emb_06b/c384_o64"
 )
 DEFAULT_OUTPUT_DIR = Path("data/processed/indexes")
+
+
+def _write_manifest(destination: Path, payload: dict) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_suffix(".json.tmp")
+    temporary.write_text(
+        json.dumps(payload, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
+    temporary.replace(destination)
 
 
 def _filename(value: str, suffix: str) -> str:
@@ -164,7 +171,13 @@ def main() -> int:
                 artifact, source_dir, input_dir, indexer,
                 manifest["normalize_embeddings"], seen_ids,
             )
-            validated.append({**artifact, "vector_sha256": vector_hash})
+            validated.append({
+                "source_filename": artifact["source_filename"],
+                "source_sha256": artifact["source_sha256"],
+                "vector_filename": artifact["vector_filename"],
+                "vector_sha256": vector_hash,
+                "chunk_count": artifact["chunk_count"],
+            })
         logging.info("Validated %d reports and %d chunks", len(validated), len(seen_ids))
 
         started = perf_counter()
@@ -181,7 +194,7 @@ def main() -> int:
         actual_count = client.count(collection_name=config.collection_name, exact=True).count
         if actual_count != len(seen_ids):
             raise ValueError(f"Expected {len(seen_ids)} points, found {actual_count}")
-        write_manifest(output_path, {
+        _write_manifest(output_path, {
             "schema_version": 1,
             "collection_name": config.collection_name,
             "version": args.version,

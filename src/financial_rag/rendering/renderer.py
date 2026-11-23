@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import json
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, NamedTuple
-
 
 DEFAULT_INPUT_DIR = Path("data/processed/parsed_reports")
 DEFAULT_OUTPUT_DIR = Path("data/processed/rendered_reports")

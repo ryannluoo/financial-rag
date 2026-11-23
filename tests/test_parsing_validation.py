@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from financial_rag.parsing.__main__ import main
 from financial_rag.parsing.manifest import MANIFEST_FILENAME, write_manifest
 from financial_rag.parsing.validation import (
     ValidationError,
@@ -11,8 +12,6 @@ from financial_rag.parsing.validation import (
     validate_parsed_corpus,
     validate_source_corpus,
 )
-from financial_rag.parsing.__main__ import main
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC_ID = "11f6ad8ec52a2984abaafd7c3b516503785c2072"

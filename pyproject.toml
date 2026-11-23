@@ -20,6 +20,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "ruff>=0.17.6",
 ]
 
 [build-system]
@@ -31,6 +32,15 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 cache_dir = ".cache/pytest"
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["financial_rag"]
 
 [[tool.uv.index]]
 name = "pytorch-cu126"

@@ -3,11 +3,11 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from docling.backend.docling_parse_backend import DoclingParseDocumentBackend
 from docling.datamodel.accelerator_options import AcceleratorDevice
 from docling.datamodel.base_models import ConversionStatus, InputFormat
 from docling.datamodel.pipeline_options import EasyOcrOptions, OcrMode, TableFormerMode
+
 from financial_rag.parsing.parser import (
     FinancialReportParser,
     ParserSettings,

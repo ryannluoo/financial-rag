@@ -48,6 +48,7 @@ class Embedder:
             normalize_embeddings=self.config.normalize_embeddings,
             batch_size=self.config.batch_size or 32,
             show_progress_bar=False,
+            convert_to_numpy=True,
         ).astype(np.float32, copy=False)
 
     def embed_query(
@@ -62,4 +63,5 @@ class Embedder:
             prompt_name=prompt_name,
             normalize_embeddings=self.config.normalize_embeddings,
             batch_size=self.config.batch_size or 32,
+            convert_to_numpy=True,
         ).astype(np.float32, copy=False)
