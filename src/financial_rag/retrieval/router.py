@@ -47,20 +47,13 @@ def resolve_document_ids(
     if not folded_lookup:
         return []
 
-    ordered_names = sorted(
-        (name for name in company_to_document_id if name.strip()),
-        key=len,
-        reverse=True,
-    )
-    pattern = re.compile(
-        "|".join(rf"(?<!\w){re.escape(name)}(?!\w)" for name in ordered_names),
-        flags=re.IGNORECASE,
-    )
+    ordered_names = sorted(folded_lookup, key=len, reverse=True)
+    pattern = re.compile("|".join(rf"(?<!\w){re.escape(name)}(?!\w)" for name in ordered_names))
 
     document_ids: list[str] = []
     seen: set[str] = set()
-    for match in pattern.finditer(question):
-        doc_id = folded_lookup[match.group(0).casefold()]
+    for match in pattern.finditer(question.casefold()):
+        doc_id = folded_lookup[match.group(0)]
         if doc_id not in seen:
             seen.add(doc_id)
             document_ids.append(doc_id)

@@ -33,6 +33,12 @@ class RetrievalConfig(BaseModel):
     top_k: int = Field(default=20, ge=1)
     vector_name: str = Field(default="dense", min_length=1)
     batch_size: int = Field(default=32, ge=1)
+    bm25_weight: float = Field(
+        default=0.0,
+        ge=0.0,
+        allow_inf_nan=False,
+        description="BM25 fusion weight relative to a dense weight of 1.0. Zero selects dense search.",
+    )
 
 
 class RetrievedChunk(BaseModel):
@@ -46,7 +52,7 @@ class RetrievedChunk(BaseModel):
     char_start: int
     char_end: int
     text: str
-    score: float
+    score: float = Field(description="Cosine similarity in dense search or the RRF score in hybrid search.")
 
 
 class QdrantRetriever:
@@ -92,7 +98,7 @@ class QdrantRetriever:
 
         if not queries:
             return []
-        
+
         query_embeddings = self._embedder.embed_query(queries)
         if (
             query_embeddings.ndim != 2
@@ -105,17 +111,10 @@ class QdrantRetriever:
             )
         if not np.isfinite(query_embeddings).all():
             raise ValueError("query_embeddings contain non-finite values.")
-        
+
         requests = [
-            models.QueryRequest(
-                query=vector.tolist(),
-                using=self.config.vector_name,
-                filter=query_filter,
-                limit=limit,
-                with_vector=False,
-                with_payload=True,
-            )
-            for vector, query_filter in zip(query_embeddings, filters, strict=True)
+            self._build_query_request(query, vector.tolist(), query_filter, limit)
+            for query, vector, query_filter in zip(queries, query_embeddings, filters, strict=True)
         ]
         results: list[list[RetrievedChunk]] = []
         for start in range(0, len(requests), self.config.batch_size):
@@ -134,6 +133,45 @@ class QdrantRetriever:
             )
 
         return results
+
+    def _build_query_request(
+        self,
+        query: str,
+        vector: list[float],
+        query_filter: models.Filter | None,
+        limit: int,
+    ) -> models.QueryRequest:
+        bm25_weight = self.config.bm25_weight
+        if bm25_weight == 0.0:
+            return models.QueryRequest(
+                query=vector,
+                using=self.config.vector_name,
+                filter=query_filter,
+                limit=limit,
+                with_vector=False,
+                with_payload=True,
+            )
+
+        return models.QueryRequest(
+            prefetch=[
+                models.Prefetch(
+                    query=vector,
+                    using=self.config.vector_name,
+                    filter=query_filter,
+                    limit=limit,
+                ),
+                models.Prefetch(
+                    query=models.TextQuery(text=query),
+                    using="text",
+                    filter=query_filter,
+                    limit=limit,
+                ),
+            ],
+            query=models.RrfQuery(rrf=models.Rrf(weights=[1.0, bm25_weight])),
+            limit=limit,
+            with_vector=False,
+            with_payload=True,
+        )
 
     @staticmethod
     def _to_retrieved_chunk(point: models.ScoredPoint) -> RetrievedChunk:

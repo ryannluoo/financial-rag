@@ -99,6 +99,7 @@ def test_embed_chunks_returns_float32_and_handles_empty(patched_embedder_deps):
         normalize_embeddings=True,
         batch_size=32,
         show_progress_bar=False,
+        convert_to_numpy=True,
     )
 
 
@@ -113,6 +114,7 @@ def test_embed_query_supports_single_batch_and_prompt_validation(patched_embedde
         "prompt_name": "query",
         "normalize_embeddings": False,
         "batch_size": 8,
+        "convert_to_numpy": True,
     }
 
     batch = embedder.embed_query(["Q1", "Q2"], prompt_name=None)

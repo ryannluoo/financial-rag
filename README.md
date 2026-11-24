@@ -4,7 +4,9 @@ A compact financial-report RAG engineering project built on the 100 annual repor
 
 ## Status
 
-The PDF parsing baseline, page renderer, token-based chunker, and embedding stage are implemented. Parsing produces structured JSON with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Rendering turns each parsed report into markdown page text. Chunking splits each page into overlapping text chunks with source offsets and citation metadata. Embedding converts those chunks into dense vectors. Indexing validates and uploads the embedding run to Qdrant with dense vectors, citation payloads, report filtering, and BM25 text indexing. Retrieval and generation are pending.
+The PDF parsing baseline, page renderer, token-based chunker, and embedding stage are implemented. Parsing produces structured JSON with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Rendering turns each parsed report into markdown page text. Chunking splits each page into overlapping text chunks with source offsets and citation metadata. Embedding converts those chunks into dense vectors. Indexing validates and uploads the embedding run to Qdrant with dense vectors, citation payloads, report filtering, and BM25 text indexing.
+
+[Retrieval](specifications/retrieval.md) supports report routing, dense search, BM25 hybrid search, and cross-encoder reranking. Pipeline integration and answer generation are pending.
 
 ## Setup
 
