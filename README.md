@@ -95,4 +95,6 @@ Source hashes must still match. See the [indexing specification](specifications/
 
 ## Evaluation
 
-The committed benchmark uses a reproducible 70-question development split and 30-question holdout split. See [evaluation policy](evaluation/README.md).
+The benchmark contains 100 questions over the fixed report corpus. Development has 70 questions, including 39 with reference pages. Holdout has 30 questions, including 19 with reference pages. Question IDs have fixed split assignments. See the [evaluation specification](specifications/evaluation.md) for answer and evidence formats and the [evaluation README](evaluation/README.md) for split composition and regeneration.
+
+The [benchmark README](data/benchmark/README.md) describes the upstream archive, the active version, and the source files.

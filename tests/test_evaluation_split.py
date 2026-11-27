@@ -26,6 +26,32 @@ def _answer_category(record: dict) -> str:
     return "na" if all(value == "n/a" for value in normalized) else "value"
 
 
+def test_split_records_match_benchmark_sources():
+    config = json.loads((EVALUATION_DIR / "split_config.json").read_bytes())
+    sources = config["source_files"]
+    question_text = (ROOT / sources["questions"]["path"]).read_text(encoding="utf-8")
+    answer_text = (ROOT / sources["answers"]["path"]).read_text(encoding="utf-8")
+    questions = json.loads(question_text)
+    answers = json.loads(answer_text)
+    expected = {}
+    for index, question in enumerate(questions):
+        text = question["text"]
+        answer = answers[text]
+        assert answer["kind"] == question["kind"]
+        question_id = f"{config['question_id_prefix']}{index:03d}"
+        expected[question_id] = {"question_id": question_id, "question": text, **answer}
+
+    for split in ("development", "holdout"):
+        path = ROOT / config["outputs"][split]
+        for line in path.read_text(encoding="utf-8").splitlines():
+            record = json.loads(line)
+            question_id = record["question_id"]
+            assert record == expected.pop(question_id), question_id
+            literal = json.dumps(record["question"], ensure_ascii=False)
+            assert literal in line and literal in question_text and literal in answer_text, question_id
+    assert not expected
+
+
 def test_committed_evaluation_split_matches_configuration():
     config_path = EVALUATION_DIR / "split_config.json"
     manifest_path = EVALUATION_DIR / "split_manifest.json"
@@ -33,7 +59,7 @@ def test_committed_evaluation_split_matches_configuration():
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     expected_sizes = {"development": 70, "holdout": 30}
-    expected_reference_counts = {"development": 34, "holdout": 15}
+    expected_reference_counts = {"development": 39, "holdout": 19}
     required_fields = {
         "question_id",
         "question",
@@ -92,5 +118,6 @@ def test_committed_evaluation_split_matches_configuration():
     holdout_ids = {record["question_id"] for record in datasets["holdout"]}
     expected_ids = {f"benchmark-v1-q{index:03d}" for index in range(100)}
 
+    assert holdout_ids == set(config["holdout_question_ids"])
     assert development_ids.isdisjoint(holdout_ids)
     assert development_ids | holdout_ids == expected_ids

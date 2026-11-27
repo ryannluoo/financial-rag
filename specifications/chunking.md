@@ -68,7 +68,7 @@ chunk["text"] == page_text[
 
 Source lookup moves forward while allowing token-bounded overlap. It accounts for repeated content, including table cells, and anchors the final chunk to its last source occurrence. A trailing chunk may be fully contained in the preceding chunk's overlap. Failure to locate a chunk raises `ValueError`.
 
-Chunk IDs are deterministic for the same rendered input, configuration, dependencies, and tokenizer artifacts. They identify positions in a particular chunking result; rechunking can change the text associated with an ID. Benchmark page citations are derived as `<document_id>:<page>`.
+Chunk IDs are deterministic for the same rendered input, configuration, dependencies, and tokenizer artifacts. They identify positions in a particular chunking result; rechunking can change the text associated with an ID. To compare a chunk with a benchmark reference, use `<document_id>:<page - 1>`. Chunk pages start at 1 and benchmark PDF indices start at 0. See the [evaluation specification](evaluation.md).
 
 ## Files
 

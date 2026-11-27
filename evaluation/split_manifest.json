@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "benchmark_version": "v1",
-  "strategy": "stratified_question_level",
+  "strategy": "fixed_stratified_question_level",
   "seed": 42,
   "question_id_prefix": "benchmark-v1-q",
   "stratify_by": [
@@ -11,32 +11,32 @@
   ],
   "config": {
     "path": "evaluation/split_config.json",
-    "sha256": "21170c2078e087a1b7163490543fe77360216b10c09d1031ff2d25b526cb730d"
+    "sha256": "47e5ecb78f8922ce2e51939c4272c8037f42e28393a6c2fc4d64de872ee9d405"
   },
   "source_files": {
     "questions": {
-      "path": "data/benchmark/questions.json",
-      "sha256": "0c8f92cbe07ecd1813e64fd4d07dcfce6712b66e16795be9611abd4d01245f10"
+      "path": "data/benchmark/v1/questions.json",
+      "sha256": "4f5dc3b637ea9b306b1896888a6c10479b5a0a494e6865244b30a26c8eacc98c"
     },
     "answers": {
-      "path": "data/benchmark/answers.json",
-      "sha256": "441782f9dd91c64a5c3e30da29a3c3e45ef8590627cd6e7ed481761240525faa"
+      "path": "data/benchmark/v1/answers.json",
+      "sha256": "381277a1bb1c4de5412bb848c865f22cf421920ec5bf1fb929806196ae53c253"
     }
   },
   "splits": {
     "development": {
       "path": "evaluation/datasets/development.jsonl",
-      "sha256": "8e7e28c44ffb8e4867a057bd39b2bf002c3500800fda3d384ec16d4067bcece0",
+      "sha256": "dbddb476c95facd52cf375252cc2fdaaaf888663f5a04972b67309d1bdcd6b01",
       "questions": 70,
-      "with_reference": 34,
-      "without_reference": 36
+      "with_reference": 39,
+      "without_reference": 31
     },
     "holdout": {
       "path": "evaluation/datasets/holdout.jsonl",
-      "sha256": "9892fb1433e3937d29602c7fd1766dfca2fd0e637600be8be73b0036865730f9",
+      "sha256": "2140cfcc6401ac31af7240a8fd87087ab1ae1f89e9c2d701963d2d7bbeaf4ff1",
       "questions": 30,
-      "with_reference": 15,
-      "without_reference": 15
+      "with_reference": 19,
+      "without_reference": 11
     }
   },
   "strata": [
@@ -44,33 +44,25 @@
       "kind": "number",
       "answer_category": "value",
       "has_reference": true,
-      "total": 17,
-      "development": 12,
-      "holdout": 5
-    },
-    {
-      "kind": "number",
-      "answer_category": "na",
-      "has_reference": true,
-      "total": 1,
-      "development": 1,
-      "holdout": 0
+      "total": 26,
+      "development": 18,
+      "holdout": 8
     },
     {
       "kind": "number",
       "answer_category": "na",
       "has_reference": false,
-      "total": 40,
-      "development": 28,
-      "holdout": 12
+      "total": 33,
+      "development": 24,
+      "holdout": 9
     },
     {
       "kind": "boolean",
       "answer_category": "true",
       "has_reference": true,
-      "total": 15,
+      "total": 16,
       "development": 10,
-      "holdout": 5
+      "holdout": 6
     },
     {
       "kind": "boolean",
@@ -84,9 +76,9 @@
       "kind": "boolean",
       "answer_category": "false",
       "has_reference": false,
-      "total": 7,
+      "total": 6,
       "development": 5,
-      "holdout": 2
+      "holdout": 1
     },
     {
       "kind": "name",
@@ -116,8 +108,8 @@
       "kind": "names",
       "answer_category": "na",
       "has_reference": false,
-      "total": 3,
-      "development": 2,
+      "total": 2,
+      "development": 1,
       "holdout": 1
     }
   ]

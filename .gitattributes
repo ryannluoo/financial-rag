@@ -1,0 +1,6 @@
+/data/benchmark/v0/*.json -text
+/data/benchmark/v1/answers.json text eol=crlf
+/data/benchmark/v1/questions.json text eol=crlf
+/evaluation/datasets/*.jsonl text eol=crlf
+/evaluation/split_config.json text eol=lf
+/evaluation/split_manifest.json text eol=crlf

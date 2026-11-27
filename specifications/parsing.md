@@ -33,7 +33,7 @@ The parser rejects output containing a material concentration of unresolved `/gi
 
 Each input PDF produces `<document_id>.json` in `data/processed/parsed_reports` unless another output directory is selected.
 
-The document ID is the filename stem of the source PDF. In the ERC2 corpus it equals the `document_id` in `data/raw/dataset_manifest.json`, which is the SHA-1 of the PDF bytes, and it is the document identifier in benchmark page references (`<document_id>:<page>`). The parser takes the ID from the filename; it does not hash the PDF.
+The document ID is the filename stem of the source PDF. In the ERC2 corpus it equals the `document_id` in `data/raw/dataset_manifest.json`, which is the SHA-1 of the PDF bytes. The parser takes the ID from the filename. Benchmark references pair this ID with a zero-based physical PDF index. Parsed page 1 corresponds to index 0.
 
 The JSON object has four top-level members, in order:
 

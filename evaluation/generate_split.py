@@ -1,10 +1,9 @@
-"""Generate deterministic development and holdout datasets from benchmark v1."""
+"""Generate deterministic development and holdout datasets from the benchmark."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import random
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -84,7 +83,7 @@ def load_and_validate_sources(
 
     question_texts = [question["text"] for question in questions]
     if len(question_texts) != len(set(question_texts)):
-        raise ValueError("Question text must be unique within benchmark v1.")
+        raise ValueError("Question text must be unique within the benchmark.")
     if set(question_texts) != set(answers):
         missing = sorted(set(question_texts) - set(answers))
         extra = sorted(set(answers) - set(question_texts))
@@ -184,36 +183,32 @@ def split_records(
     buckets: dict[tuple[str, str, bool], list[dict[str, Any]]],
     configured: dict[tuple[str, str, bool], dict[str, Any]],
 ) -> dict[str, list[dict[str, Any]]]:
-    rng = random.Random(config["seed"])
+    holdout_ids = set(config["holdout_question_ids"])
+    if len(holdout_ids) != len(config["holdout_question_ids"]):
+        raise ValueError("Duplicate question ID in the fixed holdout.")
+    if len(holdout_ids) != config["split_sizes"]["holdout"]:
+        raise ValueError("Fixed holdout IDs do not match the configured holdout size.")
     splits: dict[str, list[dict[str, Any]]] = {
         "development": [],
         "holdout": [],
     }
 
-    for row in config["strata"]:
-        key = stratum_key(
-            row["kind"],
-            row["answer_category"],
-            row["has_reference"],
-        )
-        entries = list(buckets[key])
-        rng.shuffle(entries)
-        development_count = configured[key]["development"]
-
-        splits["development"].extend(entries[:development_count])
-        splits["holdout"].extend(entries[development_count:])
+    for key, entries in buckets.items():
+        holdout_count = 0
+        for record in entries:
+            if record["question_id"] in holdout_ids:
+                splits["holdout"].append(record)
+                holdout_count += 1
+            else:
+                splits["development"].append(record)
+        if holdout_count != configured[key]["holdout"]:
+            raise ValueError(
+                f"Fixed holdout has {holdout_count} questions for {key}, "
+                f"expected {configured[key]['holdout']}"
+            )
 
     for records in splits.values():
         records.sort(key=lambda record: record["source_index"])
-
-    development_ids = {
-        record["question_id"] for record in splits["development"]
-    }
-    holdout_ids = {record["question_id"] for record in splits["holdout"]}
-    if development_ids & holdout_ids:
-        raise RuntimeError("Development and holdout question IDs overlap.")
-    if len(development_ids | holdout_ids) != sum(config["split_sizes"].values()):
-        raise RuntimeError("Generated splits do not cover the complete benchmark.")
 
     return splits
 
@@ -228,7 +223,7 @@ def write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
             if key != "source_index"
         }
         lines.append(json.dumps(output_record, ensure_ascii=False))
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\r\n")
 
 
 def build_manifest(
@@ -296,6 +291,7 @@ def main() -> None:
     manifest_path.write_text(
         json.dumps(manifest, indent=2) + "\n",
         encoding="utf-8",
+        newline="\r\n",
     )
 
     for split_name, records in splits.items():
